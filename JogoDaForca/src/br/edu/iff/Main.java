@@ -21,11 +21,11 @@ public class Main {
 			Aplicacao aplicacao = Aplicacao.getSoleInstance();
 			aplicacao.configurar();
 			TemaRepository temas = aplicacao.getRepositoryFactory().getTemaRepository();
-			JogadorRepository jogadores = aplicacao.getRepositoryFactory().getJogadorRepository();
+			JogadorRepository jogador = aplicacao.getRepositoryFactory().getJogadorRepository();
 			JogadorFactory jogadorFactory = aplicacao.getJogadorFactory();
 			TemaFactory temaFactory = aplicacao.getTemaFactory();
 			definirETemasEInserirPalavras(temas, temaFactory);
-			iniciarJogo(jogadores, jogadorFactory);
+			iniciarJogo(jogador, jogadorFactory);
 		} catch (RepositoryException e) {
 			System.err.println("Erro: " + e.getMessage());
 		}
