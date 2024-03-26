@@ -55,23 +55,23 @@ public class Main {
 			Rodada rodada = RodadaAppService.getSoleInstance().novaRodada(obterJogador(jogadores, jogadorFactory));
 			String[] palavrasArriscadas = new String[rodada.getPalavra().length];
 			Object contexto = null;
-			
+
 			while (!rodada.encerrou()) {
-			    exibirInformacoesDaRodada(rodada, contexto);
-			    System.out.print("\nEscolha uma opção: 0 para tentar ou 1 para arriscar: ");
-			    String escolha = scanner.nextLine();
-			    switch (escolha) {
-			        case "0":
-			            tentarLetra(rodada);
-			            break;
-			        case "1":
-			            arriscarPalavras(rodada, palavrasArriscadas);
-			            break;
-			        default:
-			            System.out.println("Opção inválida");
-			            break;
-			    }
-			    System.out.println("===============================");
+				exibirInformacoesDaRodada(rodada, contexto);
+				System.out.print("\nEscolha uma opção: 0 para tentar ou 1 para arriscar: ");
+				String escolha = scanner.nextLine();
+				switch (escolha) {
+				case "0":
+					tentarLetra(rodada);
+					break;
+				case "1":
+					arriscarPalavras(rodada, palavrasArriscadas);
+					break;
+				default:
+					System.out.println("Opção inválida");
+					break;
+				}
+				System.out.println("================================");
 			}
 
 			encerrarPartida(rodada, contexto);

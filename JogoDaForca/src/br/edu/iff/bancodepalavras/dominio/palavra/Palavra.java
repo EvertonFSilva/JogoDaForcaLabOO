@@ -78,7 +78,8 @@ public class Palavra extends ObjetoDominioImpl {
 	public void exibir(Object contexto, boolean[] posicoes) {
 		if (this.palavra == null) {
 			throw new RuntimeException("A palavra deve ser inicializada primeiro");
-		}
+		}
+
 		for (int posicaoAtual = 0; posicaoAtual < this.getTamanho(); posicaoAtual++) {
 			if (posicoes[posicaoAtual]) {
 				this.palavra[posicaoAtual].exibir(contexto);
@@ -99,7 +100,12 @@ public class Palavra extends ObjetoDominioImpl {
 				posicoesEncontradasLista.add(posicaoAtual);
 			}
 		}
-		return posicoesEncontradasLista.stream().mapToInt(Integer::intValue).toArray();
+
+		int[] posicoesEncontradasArray = new int[posicoesEncontradasLista.size()];
+		for (int i = 0; i < posicoesEncontradasArray.length; i++) {
+			posicoesEncontradasArray[i] = posicoesEncontradasLista.get(i);
+		}
+		return posicoesEncontradasArray;
 	}
 
 	public Tema getTema() {

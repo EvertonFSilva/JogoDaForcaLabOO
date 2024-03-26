@@ -1,7 +1,5 @@
 package br.edu.iff.jogoforca.dominio.rodada;
 
-import java.util.ArrayList;
-
 import br.edu.iff.bancodepalavras.dominio.letra.Letra;
 import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
 import br.edu.iff.dominio.ObjetoDominioImpl;
@@ -30,7 +28,7 @@ public class Item extends ObjetoDominioImpl {
 		super(id);
 		this.palavra = palavra;
 		this.posicoesDescobertas = new boolean[this.palavra.getTamanho()];
-		for (Integer posicao : posicoesDescobertas) {
+		for (int posicao : posicoesDescobertas) {
 			this.posicoesDescobertas[posicao] = true;
 		}
 		this.palavraArriscada = palavraArriscada;
@@ -41,23 +39,25 @@ public class Item extends ObjetoDominioImpl {
 	}
 
 	public Letra[] getLetrasDescobertas() {
-		ArrayList<Letra> letrasDescobertasLista = new ArrayList<Letra>();
+		Letra[] letrasDescobertas = new Letra[this.palavra.getTamanho()];
+		int index = 0;
 		for (int posicaoAtual = 0; posicaoAtual < this.palavra.getTamanho(); posicaoAtual++) {
 			if (this.posicoesDescobertas[posicaoAtual]) {
-				letrasDescobertasLista.add(this.palavra.getLetra(posicaoAtual));
+				letrasDescobertas[index++] = this.palavra.getLetra(posicaoAtual);
 			}
 		}
-		return letrasDescobertasLista.toArray(new Letra[letrasDescobertasLista.size()]);
+		return letrasDescobertas;
 	}
 
 	public Letra[] getLetrasEncobertas() {
-		ArrayList<Letra> letrasDescobertasLista = new ArrayList<Letra>();
+		Letra[] letrasEncobertas = new Letra[this.palavra.getTamanho()];
+		int index = 0;
 		for (int posicaoAtual = 0; posicaoAtual < this.palavra.getTamanho(); posicaoAtual++) {
 			if (!this.posicoesDescobertas[posicaoAtual]) {
-				letrasDescobertasLista.add(this.palavra.getLetra(posicaoAtual));
+				letrasEncobertas[index++] = this.palavra.getLetra(posicaoAtual);
 			}
 		}
-		return letrasDescobertasLista.toArray(new Letra[letrasDescobertasLista.size()]);
+		return letrasEncobertas;
 	}
 
 	public int qtdeLetrasEncobertas() {
@@ -105,5 +105,4 @@ public class Item extends ObjetoDominioImpl {
 	public boolean acertou() {
 		return this.palavra.comparar(this.palavraArriscada);
 	}
-
 }
