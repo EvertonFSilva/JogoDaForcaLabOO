@@ -21,7 +21,7 @@ import br.edu.iff.jogoforca.texto.ElementoGraficoTextoFactory;
 
 public class Aplicacao {
 
-	private static final String[] TIPOS_REPOSITORY_FACTORY = { "memoria, embdr" };
+	private static final String[] TIPOS_REPOSITORY_FACTORY = { "memoria, relacional" };
 	private static final String[] TIPOS_ELEMENTO_GRAFICO_FACTORY = { "texto", "imagem" };
 	private static final String[] TIPOS_RODADA_FACTORY = { "sorteio" };
 	private static Aplicacao soleInstance;
