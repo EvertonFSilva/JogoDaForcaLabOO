@@ -20,20 +20,20 @@ public class Item extends ObjetoDominioImpl {
 		return new Item(id, palavra, posicoesDescobertas, palavraArriscada);
 	}
 
-	private Item(long id, Palavra palavra, int[] posicoesDescobertas, String palavraArriscada) {
-	    super(id);
-	    this.palavra = palavra;
-	    this.posicoesDescobertas = new boolean[this.palavra.getTamanho()];
-	    if (posicoesDescobertas != null) {
-	        for (int posicao : posicoesDescobertas) {
-	            this.posicoesDescobertas[posicao] = true;
-	        }
-	    }
-	    this.palavraArriscada = palavraArriscada;
+	private Item(long id, Palavra palavra) {
+		super(id);
+		this.palavra = palavra;
+		this.posicoesDescobertas = new boolean[this.palavra.getTamanho()];
 	}
 
-	private Item(long id, Palavra palavra) {
-	    this(id, palavra, null, null);
+	private Item(long id, Palavra palavra, int[] posicoesDescobertas, String palavraArriscada) {
+		super(id);
+		this.palavra = palavra;
+		this.posicoesDescobertas = new boolean[this.palavra.getTamanho()];
+		for (Integer posicao : posicoesDescobertas) {
+			this.posicoesDescobertas[posicao] = true;
+		}
+		this.palavraArriscada = palavraArriscada;
 	}
 
 	public Palavra getPalavra() {
