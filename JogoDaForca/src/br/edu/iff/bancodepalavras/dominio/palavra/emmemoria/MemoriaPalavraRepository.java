@@ -21,7 +21,7 @@ public class MemoriaPalavraRepository implements PalavraRepository {
 	}
 
 	private MemoriaPalavraRepository() {
-		pool = new ArrayList<Palavra>();
+		this.pool = new ArrayList<Palavra>();
 	}
 
 	@Override

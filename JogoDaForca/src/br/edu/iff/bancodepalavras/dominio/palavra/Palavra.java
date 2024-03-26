@@ -42,8 +42,8 @@ public class Palavra extends ObjetoDominioImpl {
 		for (int letraAtual = 0; letraAtual < palavra.length(); letraAtual++) {
 			this.palavra[letraAtual] = letraFactory.getLetra(palavra.charAt(letraAtual));
 		}
-		this.tema = tema;
 		this.encoberta = letraFactory.getLetraEncoberta();
+		this.tema = tema;
 	}
 
 	public Letra[] getLetras() {
@@ -57,9 +57,11 @@ public class Palavra extends ObjetoDominioImpl {
 		if (this.palavra == null) {
 			throw new RuntimeException("A palavra deve ser inicializada primeiro");
 		}
+
 		if (posicao < 0 || posicao > getTamanho()) {
 			throw new RuntimeException("Posição inválida");
 		}
+
 		return this.palavra[posicao];
 	}
 
@@ -67,6 +69,7 @@ public class Palavra extends ObjetoDominioImpl {
 		if (this.palavra == null) {
 			throw new RuntimeException("A palavra deve ser inicializada primeiro");
 		}
+
 		for (int posicaoAtual = 0; posicaoAtual < this.getTamanho(); posicaoAtual++) {
 			this.palavra[posicaoAtual].exibir(contexto);
 		}
@@ -76,6 +79,7 @@ public class Palavra extends ObjetoDominioImpl {
 		if (this.palavra == null) {
 			throw new RuntimeException("A palavra deve ser inicializada primeiro");
 		}
+
 		for (int posicaoAtual = 0; posicaoAtual < this.getTamanho(); posicaoAtual++) {
 			if (posicoes[posicaoAtual]) {
 				this.palavra[posicaoAtual].exibir(contexto);
@@ -89,6 +93,7 @@ public class Palavra extends ObjetoDominioImpl {
 		if (this.palavra == null) {
 			throw new RuntimeException("A palavra deve ser inicializada primeiro");
 		}
+
 		ArrayList<Integer> posicoesEncontradasLista = new ArrayList<Integer>();
 		for (int posicaoAtual = 0; posicaoAtual < this.getTamanho(); posicaoAtual++) {
 			if (this.palavra[posicaoAtual].getCodigo() == codigo) {
@@ -106,17 +111,16 @@ public class Palavra extends ObjetoDominioImpl {
 		if (this.palavra == null) {
 			throw new RuntimeException("A palavra deve ser inicializada primeiro");
 		}
-		if (palavra == null) {
+		if (palavra == null || palavra.length() != getTamanho()) {
 			return false;
 		}
-		if (this.getTamanho() != palavra.length()) {
-			return false;
-		}
-		for (int posicaoAtual = 0; posicaoAtual < this.getTamanho(); posicaoAtual++) {
-			if (this.palavra[posicaoAtual].getCodigo() != palavra.charAt(posicaoAtual)) {
+
+		for (int posicao = 0; posicao < getTamanho(); posicao++) {
+			if (this.palavra[posicao].getCodigo() != palavra.charAt(posicao)) {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -132,11 +136,11 @@ public class Palavra extends ObjetoDominioImpl {
 		if (this.palavra == null) {
 			throw new RuntimeException("A palavra deve ser inicializada primeiro");
 		}
-		String palavra = "";
-		for (int posicaoAtual = 0; posicaoAtual < this.getTamanho(); posicaoAtual++) {
-			palavra += this.palavra[posicaoAtual].getCodigo();
-		}
-		return palavra;
-	}
 
+		StringBuilder builder = new StringBuilder();
+		for (Letra letra : palavra) {
+			builder.append(letra.getCodigo());
+		}
+		return builder.toString();
+	}
 }

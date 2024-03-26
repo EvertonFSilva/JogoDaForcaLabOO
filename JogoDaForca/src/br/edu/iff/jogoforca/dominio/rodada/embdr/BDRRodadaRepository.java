@@ -22,37 +22,31 @@ public class BDRRodadaRepository implements RodadaRepository {
 
 	@Override
 	public long getProximoId() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public Rodada getPorId(long id) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Rodada[] getPorJogador(Jogador jogador) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void inserir(Rodada rodada) throws RepositoryException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void atualizar(Rodada rodada) throws RepositoryException {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void remover(Rodada rodada) throws RepositoryException {
-		// TODO Auto-generated method stub
 		
 	}
 	

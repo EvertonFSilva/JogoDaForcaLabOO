@@ -46,7 +46,7 @@ public class RodadaSorteioFactory extends RodadaFactoryImpl {
 		Palavra[] palavrasTema = super.getPalavraRepository().getPorTema(temaEsolhido);
 		
 		if (palavrasTema.length < qtdPalavrasSorteadas) {
-			throw new RuntimeException("Quantidade de palavras insufuciente no tema sorteado.");
+			throw new RuntimeException("Quantidade de palavras insuficientes no tema sorteado.");
 		}
 		
 		Palavra[] palavrasEscolhidas = new Palavra[qtdPalavrasSorteadas];

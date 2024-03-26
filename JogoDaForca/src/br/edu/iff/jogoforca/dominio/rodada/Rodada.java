@@ -3,6 +3,7 @@ package br.edu.iff.jogoforca.dominio.rodada;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import br.edu.iff.bancodepalavras.dominio.letra.Letra;
 import br.edu.iff.bancodepalavras.dominio.palavra.Palavra;
@@ -23,7 +24,7 @@ public class Rodada extends ObjetoDominioImpl {
 	private static BonecoFactory bonecoFactory;
 	private Boneco boneco;
 	private Item[] itens;
-	private List<Letra> erradas;
+	private List<Letra> letrasErradas;
 
 	public static int getMaxPalavras() {
 		return maxPalavras;
@@ -92,7 +93,7 @@ public class Rodada extends ObjetoDominioImpl {
 			}
 		}
 		this.jogador = jogador;
-		this.erradas = new ArrayList<Letra>();
+		this.letrasErradas = new ArrayList<Letra>();
 		this.boneco = bonecoFactory.getBoneco();
 	}
 
@@ -105,7 +106,7 @@ public class Rodada extends ObjetoDominioImpl {
 				throw new RuntimeException("Todas as palavras devem ter o mesmo tema");
 			}
 		}
-		this.erradas = Arrays.asList(erradas);
+		this.letrasErradas = Arrays.asList(erradas);
 		this.jogador = jogador;
 		this.boneco = bonecoFactory.getBoneco();
 	}
@@ -137,22 +138,22 @@ public class Rodada extends ObjetoDominioImpl {
 		if (this.encerrou()) {
 			throw new RuntimeException("Não é possível fazer uma tentativa após o encerramento do jogo.");
 		}
-		
+
 		if (this.getNumPalavras() == 0) {
 			throw new RuntimeException("Deve haver pelo menos uma palavra disponível para tentativa.");
 		}
-		
+
 		boolean encontrou = false;
 		for (Item item : this.itens) {
 			if (item.tentar(codigo) && !encontrou) {
 				encontrou = true;
 			}
 		}
-		
+
 		if (!encontrou) {
-			this.erradas.add(this.itens[0].getPalavra().getLetraFactory().getLetra(codigo));
+			this.letrasErradas.add(this.itens[0].getPalavra().getLetraFactory().getLetra(codigo));
 		}
-		
+
 		if (this.encerrou()) {
 			this.jogador.setPontuacao(this.jogador.getPontuacao() + this.calcularPontos());
 		}
@@ -162,11 +163,11 @@ public class Rodada extends ObjetoDominioImpl {
 		if (this.encerrou()) {
 			throw new RuntimeException("Não é possível tentar após o encerramento do jogo.");
 		}
-		
+
 		for (int palavraAtual = 0; palavraAtual < this.getNumPalavras(); palavraAtual++) {
 			this.itens[palavraAtual].arriscar(palavras[palavraAtual]);
 		}
-	
+
 		if (this.encerrou()) {
 			this.jogador.setPontuacao(this.jogador.getPontuacao() + this.calcularPontos());
 		}
@@ -180,7 +181,7 @@ public class Rodada extends ObjetoDominioImpl {
 	}
 
 	public void exibirBoneco(Object contexto) {
-		this.boneco.exibir(contexto, this.erradas.size());
+		this.boneco.exibir(contexto, this.letrasErradas.size());
 	}
 
 	public void exibirPalavras(Object contexto) {
@@ -191,23 +192,30 @@ public class Rodada extends ObjetoDominioImpl {
 	}
 
 	public void exibirLetrasErradas(Object contexto) {
-		for (Letra letra : this.erradas) {
-			letra.exibir(contexto);
-			System.out.print(" ");
+		StringBuilder letrasErradas = new StringBuilder();
+		for (Letra letra : this.letrasErradas) {
+			letrasErradas.append(letra.toString()).append(", ");
 		}
+
+		if (letrasErradas.length() > 1) {
+			letrasErradas.deleteCharAt(letrasErradas.length() - 2);
+		}
+
+		System.out.println(letrasErradas);
 	}
 
 	public Letra[] getTentativas() {
 		Letra[] tentativas = new Letra[this.getCertas().length + this.getErradas().length];
 		int letraAtual = 0;
-		
+
 		for (; letraAtual < this.getCertas().length; letraAtual++) {
 			tentativas[letraAtual] = this.getCertas()[letraAtual];
 		}
-		
+
 		for (; letraAtual < tentativas.length; letraAtual++) {
 			tentativas[letraAtual] = this.getErradas()[letraAtual - this.getCertas().length];
 		}
+
 		return tentativas;
 	}
 
@@ -224,17 +232,17 @@ public class Rodada extends ObjetoDominioImpl {
 	}
 
 	public Letra[] getErradas() {
-		return this.erradas.toArray(new Letra[this.erradas.size()]);
+		return this.letrasErradas.toArray(new Letra[this.letrasErradas.size()]);
 	}
 
 	public int calcularPontos() {
 		if (this.descobriu()) {
 			int pontosTotaisPorLetrasEncobertas = 0;
-			
+
 			for (Item item : this.itens) {
 				pontosTotaisPorLetrasEncobertas += item.calcularPontosLetrasEncobertas(pontosPorLetraEncoberta);
 			}
-			
+
 			return pontosQuandoDescobreTodasAsPalavras + pontosTotaisPorLetrasEncobertas;
 		} else {
 			return 0;

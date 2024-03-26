@@ -14,154 +14,142 @@ import br.edu.iff.jogoforca.dominio.rodada.RodadaAppService;
 import br.edu.iff.repository.RepositoryException;
 
 public class Main {
+	private static final Scanner scanner = new Scanner(System.in);
 
-	public static void main(String[] args) throws RepositoryException, JogadorNaoEncontradoException {
-		Aplicacao app = Aplicacao.getSoleInstance();
-		app.configurar();
-		TemaRepository temas = app.getRepositoryFactory().getTemaRepository();
-		JogadorRepository jogadores = app.getRepositoryFactory().getJogadorRepository();
-		JogadorFactory jogadorFactory = app.getJogadorFactory();
-		TemaFactory temaFactory = app.getTemaFactory();
-		definirTemas(temas, temaFactory);
-		jogar(jogadores, jogadorFactory);
+	public static void main(String[] args) {
+		try {
+			Aplicacao aplicacao = Aplicacao.getSoleInstance();
+			aplicacao.configurar();
+			TemaRepository temas = aplicacao.getRepositoryFactory().getTemaRepository();
+			JogadorRepository jogadores = aplicacao.getRepositoryFactory().getJogadorRepository();
+			JogadorFactory jogadorFactory = aplicacao.getJogadorFactory();
+			TemaFactory temaFactory = aplicacao.getTemaFactory();
+			definirETemasEInserirPalavras(temas, temaFactory);
+			iniciarJogo(jogadores, jogadorFactory);
+		} catch (RepositoryException e) {
+			System.err.println("Erro: " + e.getMessage());
+		}
 	}
 
-	public static void definirTemas(TemaRepository temas, TemaFactory temaFactory) {
+	private static void definirETemasEInserirPalavras(TemaRepository temas, TemaFactory temaFactory)
+			throws RepositoryException {
 		String[] listaDeTemas = { "Frutas", "Veiculos", "Instrumentos", "Profissoes" };
 		for (String tema : listaDeTemas) {
-			try {
-				temas.inserir(temaFactory.getTema(tema));
-			} catch (RepositoryException e) {
-				e.printStackTrace();
+			temas.inserir(temaFactory.getTema(tema));
+		}
+
+		String[][] palavrasPorTema = { { "banana", "maca", "uva", "laranja", "pera", "melancia", "abacaxi" },
+				{ "carro", "moto", "bicicleta", "onibus", "caminhao" },
+				{ "violino", "piano", "guitarra", "flauta", "bateria" },
+				{ "medico", "professor", "engenheiro", "advogado", "cozinheiro" } };
+
+		for (int i = 0; i < listaDeTemas.length; i++) {
+			for (String palavra : palavrasPorTema[i]) {
+				PalavraAppService.getSoleInstance().novaPalavra(palavra, temas.getPorNome(listaDeTemas[i])[0].getId());
 			}
-		}
-
-		String[] palavrasFrutas = { "banana", "maca", "uva", "laranja", "pera", "melancia", "abacaxi" };
-		for (String palavra : palavrasFrutas) {
-			PalavraAppService.getSoleInstance().novaPalavra(palavra, temas.getPorNome(listaDeTemas[0])[0].getId());
-		}
-
-		String[] palavrasVeiculos = { "carro", "moto", "bicicleta", "onibus", "caminhao" };
-		for (String palavra : palavrasVeiculos) {
-			PalavraAppService.getSoleInstance().novaPalavra(palavra, temas.getPorNome(listaDeTemas[1])[0].getId());
-		}
-
-		String[] palavrasInstrumentos = { "violino", "piano", "guitarra", "flauta", "bateria" };
-		for (String palavra : palavrasInstrumentos) {
-			PalavraAppService.getSoleInstance().novaPalavra(palavra, temas.getPorNome(listaDeTemas[2])[0].getId());
-		}
-
-		String[] palavrasProfissoes = { "medico", "professor", "engenheiro", "advogado", "cozinheiro" };
-		for (String palavra : palavrasProfissoes) {
-			PalavraAppService.getSoleInstance().novaPalavra(palavra, temas.getPorNome(listaDeTemas[3])[0].getId());
 		}
 	}
 
-	public static void jogar(JogadorRepository jogadores, JogadorFactory jogadorFactory)
-			throws RepositoryException, JogadorNaoEncontradoException {
-		Rodada partida = RodadaAppService.getSoleInstance().novaRodada(obterJogadorDaRodada(jogadores, jogadorFactory));
-		Scanner entrada = new Scanner(System.in);
-		Object contexto = null;
-		String escolha;
-		String[] palavrasArriscadas = new String[partida.getPalavra().length];
-		do {
-			exibirInformacoes(partida, contexto);
-			System.out.print("\nEscolha uma opção: 0 para tentar ou 1 para arriscar: ");
-			escolha = entrada.nextLine();
-			switch (escolha) {
-			case "0":
-				tentar(partida);
-				break;
-			case "1":
-				arriscar(partida, palavrasArriscadas);
-				break;
-			default:
-				System.out.println("Opção inválida");
-				break;
+	private static void iniciarJogo(JogadorRepository jogadores, JogadorFactory jogadorFactory) {
+		try {
+			Rodada rodada = RodadaAppService.getSoleInstance().novaRodada(obterJogador(jogadores, jogadorFactory));
+			String[] palavrasArriscadas = new String[rodada.getPalavra().length];
+			Object contexto = null;
+			
+			while (!rodada.encerrou()) {
+			    exibirInformacoesDaRodada(rodada, contexto);
+			    System.out.print("\nEscolha uma opção: 0 para tentar ou 1 para arriscar: ");
+			    String escolha = scanner.nextLine();
+			    switch (escolha) {
+			        case "0":
+			            tentarLetra(rodada);
+			            break;
+			        case "1":
+			            arriscarPalavras(rodada, palavrasArriscadas);
+			            break;
+			        default:
+			            System.out.println("Opção inválida");
+			            break;
+			    }
+			    System.out.println("===============================");
 			}
-			System.out.println("===============================");
-		} while (!partida.encerrou());
-		encerrar(partida, contexto);
-		RodadaAppService.getSoleInstance().salvarRodada(partida);
-		entrada.close();
+
+			encerrarPartida(rodada, contexto);
+			RodadaAppService.getSoleInstance().salvarRodada(rodada);
+		} catch (RepositoryException | JogadorNaoEncontradoException e) {
+			System.err.println("Erro: " + e.getMessage());
+		}
 	}
 
-	public static String obterJogadorDaRodada(JogadorRepository jogadores, JogadorFactory jogadorFactory)
+	private static String obterJogador(JogadorRepository jogadores, JogadorFactory jogadorFactory)
 			throws RepositoryException {
-		@SuppressWarnings("resource")
-		Scanner entrada = new Scanner(System.in);
-
 		System.out.print("Informe seu nome: ");
-		String nomeJogador = entrada.nextLine();
+		String nomeJogador = scanner.nextLine();
 		nomeJogador = nomeJogador.substring(0, 1).toUpperCase() + nomeJogador.substring(1).toLowerCase();
-
 		System.out.println();
-
 		jogadores.inserir(jogadorFactory.getJogador(nomeJogador));
 		return nomeJogador;
 	}
 
-	public static void exibirInformacoes(Rodada partida, Object contexto) {
+	private static void exibirInformacoesDaRodada(Rodada rodada, Object contexto) {
 		System.out.println("================================");
-		System.out.println("Tema: " + partida.getTema().getNome());
+		System.out.println("Tema: " + rodada.getTema().getNome());
 		System.out.println("Palavras: ");
-		partida.exibirItens(contexto);
-		System.out.println("Letras erradas: ");
-		partida.exibirLetrasErradas(contexto);
-		System.out.println("Boneco: ");
-		partida.exibirBoneco(contexto);
+		System.out.println();
+		rodada.exibirItens(contexto);
+		System.out.println();
+		System.out.println("Letras Erradas: ");
+		rodada.exibirLetrasErradas(contexto);
+		System.out.println("Parte do Boneco: ");
+		rodada.exibirBoneco(contexto);
 		System.out.println("================================");
 	}
 
-	public static void arriscar(Rodada partida, String[] palavrasArriscadas) {
-		@SuppressWarnings("resource")
-		Scanner entrada = new Scanner(System.in);
+	private static void arriscarPalavras(Rodada rodada, String[] palavrasArriscadas) {
 		System.out.println("## Arriscar ##");
 		System.out.println("Digite as palavras:");
 		for (int posicaoAtual = 0; posicaoAtual < palavrasArriscadas.length; posicaoAtual++) {
 			System.out.print((posicaoAtual + 1) + "ª palavra: ");
-			palavrasArriscadas[posicaoAtual] = entrada.nextLine().trim();
+			palavrasArriscadas[posicaoAtual] = scanner.nextLine().toLowerCase().trim();
 		}
-		partida.arriscar(palavrasArriscadas);
+		rodada.arriscar(palavrasArriscadas);
 	}
 
-	public static void tentar(Rodada partida) {
-		@SuppressWarnings("resource")
-		Scanner entrada = new Scanner(System.in);
+	private static void tentarLetra(Rodada rodada) {
 		System.out.println("## Tentar ##");
-		System.out.println("Tentativas Restantes: " + partida.getQtdeTentativasRestantes());
+		System.out.println("Tentativas Restantes: " + rodada.getQtdeTentativasRestantes());
 		System.out.print("Digite uma letra:");
-		char letraTentada = entrada.nextLine().trim().charAt(0);
+		char letraTentada = scanner.nextLine().trim().toLowerCase().charAt(0);
 		if (!(letraTentada >= 'a' && letraTentada <= 'z')) {
 			System.out.println("Letra inválida");
 		} else {
-			partida.tentar(letraTentada);
+			rodada.tentar(letraTentada);
 		}
 	}
 
-	public static void encerrar(Rodada partida, Object contexto) {
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-		if (partida.descobriu()) {
-			mostrarResultadoVitoria(partida);
+	private static void encerrarPartida(Rodada rodada, Object contexto) {
+		System.out.println("================================");
+		if (rodada.descobriu()) {
+			exibirResultadoVitoria(rodada);
 		} else {
-			mostrarResultadoDerrota(partida, contexto);
+			exibirResultadoDerrota(rodada, contexto);
 		}
 		System.out.println();
 	}
 
-	public static void mostrarResultadoDerrota(Rodada partida, Object contexto) {
-		System.out
-				.println("O jogador " + partida.getJogador().getNome() + " não conseguiu adivinhar todas as palavras!");
-		System.out.println("Número de tentativas: " + partida.getQtdeTentativas());
-		System.out.println("Número de acertos: " + partida.getQtdeAcertos());
-		System.out.println("Palavras corretas:");
-		partida.exibirPalavras(contexto);
+	private static void exibirResultadoVitoria(Rodada rodada) {
+		System.out.println("Parabéns para o jogador " + rodada.getJogador().getNome() + "! Você venceu o jogo!");
+		System.out.println("Número de tentativas: " + rodada.getQtdeTentativas());
+		System.out.println("Número de acertos: " + rodada.getQtdeAcertos());
+		System.out.println("Pontuação total: " + rodada.calcularPontos());
 	}
 
-	public static void mostrarResultadoVitoria(Rodada partida) {
-		System.out.println("Parabéns para o jogador " + partida.getJogador().getNome() + "! Você venceu o jogo!");
-		System.out.println("Número de tentativas: " + partida.getQtdeTentativas());
-		System.out.println("Número de acertos: " + partida.getQtdeAcertos());
-		System.out.println("Pontuação total: " + partida.calcularPontos());
+	private static void exibirResultadoDerrota(Rodada rodada, Object contexto) {
+		System.out
+				.println("O jogador " + rodada.getJogador().getNome() + " não conseguiu adivinhar todas as palavras!");
+		System.out.println("Número de tentativas: " + rodada.getQtdeTentativas());
+		System.out.println("Número de acertos: " + rodada.getQtdeAcertos());
+		System.out.println("Palavras corretas:");
+		rodada.exibirPalavras(contexto);
 	}
 }

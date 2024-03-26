@@ -38,23 +38,27 @@ public class Aplicacao {
 	}
 
 	private Aplicacao() {
+		
 	}
 
 	public void configurar() {
+		TemaFactoryImpl.createSoleInstance(this.getRepositoryFactory().getTemaRepository());
+
 		RodadaSorteioFactory.createSoleInstance(this.getRepositoryFactory().getRodadaRepository(),
 				this.getRepositoryFactory().getTemaRepository(), this.getRepositoryFactory().getPalavraRepository());
-		TemaFactoryImpl.createSoleInstance(this.getRepositoryFactory().getTemaRepository());
-		PalavraFactoryImpl.createSoleInstance(this.getRepositoryFactory().getPalavraRepository());
+		
 		JogadorFactoryImpl.createSoleInstance(this.getRepositoryFactory().getJogadorRepository());
 
+		PalavraFactoryImpl.createSoleInstance(this.getRepositoryFactory().getPalavraRepository());
+		
 		Palavra.setLetraFactory(this.getLetraFactory());
 		Rodada.setBonecoFactory(this.getBonecoFactory());
 
 		PalavraAppService.createSoleInstance(this.getRepositoryFactory().getPalavraRepository(),
 				this.getRepositoryFactory().getTemaRepository(), this.getPalavraFactory());
+		
 		RodadaAppService.createSoleInstance(this.getRepositoryFactory().getRodadaRepository(),
 				this.getRepositoryFactory().getJogadorRepository(), this.getRodadaFactory());
-
 	}
 
 	public String[] getTiposRepositoryFactory() {
@@ -67,9 +71,9 @@ public class Aplicacao {
 	}
 
 	public RepositoryFactory getRepositoryFactory() {
-		if (this.tipoRepositoryFactory.compareTo(TIPOS_REPOSITORY_FACTORY[0]) == 0) {
+		if (this.tipoRepositoryFactory.compareTo(this.getTiposRepositoryFactory()[0]) == 0) {
 			return MemoriaRepositoryFactory.getSoleInstance();
-		} else if (this.tipoRepositoryFactory.compareTo(TIPOS_REPOSITORY_FACTORY[1]) == 0) {
+		} else if (this.tipoRepositoryFactory.compareTo(this.getTiposRepositoryFactory()[1]) == 0) {
 			return BDRRepositoryFactory.getSoleInstance();
 		} else {
 			throw new RuntimeException("Tipo de factory não existe.");
@@ -86,9 +90,9 @@ public class Aplicacao {
 	}
 
 	private ElementoGraficoFactory getElementoGraficoFactory() {
-		if (this.tipoElementoGraficoFactory.compareTo(TIPOS_ELEMENTO_GRAFICO_FACTORY[0]) == 0) {
+		if (this.tipoElementoGraficoFactory.compareTo(this.getTiposElementoGraficoFactory()[0]) == 0) {
 			return ElementoGraficoTextoFactory.getSoleInstance();
-		} else if (this.tipoElementoGraficoFactory.compareTo(TIPOS_ELEMENTO_GRAFICO_FACTORY[1]) == 0) {
+		} else if (this.tipoElementoGraficoFactory.compareTo(this.getTiposElementoGraficoFactory()[1]) == 0) {
 			return ElementoGraficoImagemFactory.getSoleInstance();
 		} else {
 			throw new RuntimeException("Tipo de factory não existe.");
@@ -113,7 +117,7 @@ public class Aplicacao {
 	}
 
 	public RodadaFactory getRodadaFactory() {
-		if (this.tipoRodadaFactory.compareTo(TIPOS_RODADA_FACTORY[0]) == 0) {
+		if (this.tipoRodadaFactory.compareTo(this.getTiposRodadaFactory()[0]) == 0) {
 			return RodadaSorteioFactory.getSoleInstance();
 		} else {
 			throw new RuntimeException("Tipo de factory não existe.");

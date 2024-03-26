@@ -1,5 +1,6 @@
 package br.edu.iff.bancodepalavras.dominio.palavra;
 
+import br.edu.iff.bancodepalavras.dominio.tema.Tema;
 import br.edu.iff.bancodepalavras.dominio.tema.TemaRepository;
 import br.edu.iff.repository.RepositoryException;
 
@@ -33,15 +34,17 @@ public class PalavraAppService {
 	}
 
 	public boolean novaPalavra(String palavra, long temaId) {
-		if (this.temaRepository.getPorId(temaId) == null) {
-			throw new RuntimeException("O temaId precisa ser de um Tema pré-existente no repositório de Tema.");
+		Tema tema = this.temaRepository.getPorId(temaId);
+
+		if (tema == null) {
+			throw new RuntimeException("O temaId não corresponde a um Tema existente no repositório de Tema.");
 		}
+
 		if (this.palavraRepository.getPalavra(palavra) != null) {
 			return true;
 		} else {
 			try {
-				this.palavraRepository
-						.inserir(this.palavraFactory.getPalavra(palavra, this.temaRepository.getPorId(temaId)));
+				this.palavraRepository.inserir(this.palavraFactory.getPalavra(palavra, tema));
 				return true;
 			} catch (RepositoryException e) {
 				System.out.println(e.getMessage());
